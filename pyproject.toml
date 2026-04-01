@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "medical-consultations"
+version = "0.1.0"
+description = ""
+authors = ["jaqueline <jaquelinesa.82@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+django = "^6.0.3"
+djangorestframework = "^3.17.1"
+python-decouple = "^3.8"
+psycopg2-binary = "^2.9.11"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.0"
+pytest-django = "^4.8"
+ruff = "^0.3.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
