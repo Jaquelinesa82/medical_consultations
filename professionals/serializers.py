@@ -1,8 +1,8 @@
 from rest_framework import serializers
-from .models import Professionals
+from .models import Professional
 
 
-class ProfessionalsSerializer(serializers.ModelSerializer):
-    class meta:
-        model = Professionals
+class ProfessionalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Professional
         fields = '__all__'

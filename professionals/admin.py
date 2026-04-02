@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import Professionals
+from .models import Professional
 
-admin.site.register(Professionals)
+admin.site.register(Professional)
 
 
 
