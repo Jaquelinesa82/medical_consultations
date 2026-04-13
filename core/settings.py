@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+
 import dj_database_url
 from decouple import Csv, config
 
@@ -87,11 +88,10 @@ DATABASES = {
     "default": dj_database_url.config(
         default=config(
             "DATABASE_URL",
-            default="postgres://postgres:postgres@localhost:5432/postgres"
+            default="postgres://postgres:postgres@localhost:5432/postgres",
         )
     )
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
