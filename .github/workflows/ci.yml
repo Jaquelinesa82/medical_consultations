@@ -2,10 +2,12 @@ name: CI
 
 on:
   push:
+    branches: [ "main", "feat/*" ]
+  pull_request:
     branches: [ "main" ]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     services:
@@ -17,13 +19,45 @@ jobs:
           POSTGRES_PASSWORD: postgres
         ports:
           - 5433:5432
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/test_db
+      SECRET_KEY: test
+      DEBUG: True
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
       - name: Install Poetry
         run: pip install poetry
 
       - name: Install dependencies
-        run: poetry install
-      
+        run: poetry install --no-root
+
+      - name: Run migrations
+        run: poetry run python manage.py migrate
+
+      - name: Run tests with coverage
+        run: |
+          poetry run coverage run manage.py test
+          poetry run coverage report
+
+      - name: Run lint (flake8)
+        run: poetry run flake8 .
+
+      - name: Check formatting (black)
+        run: poetry run black --check .
+
+      - name: Check imports (isort)
+        run: poetry run isort --check-only .
