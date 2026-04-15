@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase  # noqa: F401
 
 
 class HealthCheck(TestCase):

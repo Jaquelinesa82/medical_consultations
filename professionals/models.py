@@ -2,7 +2,6 @@ from django.db import models
 
 
 class Professional(models.Model):
-
     social_name = models.CharField(max_length=255)
     occupation = models.CharField(max_length=255)
     address = models.CharField(max_length=255)

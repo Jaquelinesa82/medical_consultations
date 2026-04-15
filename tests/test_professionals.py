@@ -1,11 +1,9 @@
-from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from professionals.models import Professional
 
 
 class ProfessionalAPITest(APITestCase):
-
     def setUp(self):
         self.professional = Professional.objects.create(
             social_name="Maria",
