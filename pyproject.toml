@@ -12,12 +12,30 @@ django = "^6.0.3"
 djangorestframework = "^3.17.1"
 python-decouple = "^3.8"
 psycopg2-binary = "^2.9.11"
-
+dj-database-url = "^3.1.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.0"
 pytest-django = "^4.8"
-ruff = "^0.3.0"
+ruff = "^0.4.4"
+coverage = "^7.13.5"
+pre-commit = "^3.7.8"
+
+[tool.ruff]
+line-length = 88
+target-version = "py312"
+exclude = ["migrations", "__pycache__", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.coverage.run]
+omit = ["*/migrations/*", "*/tests/*"]
 
 [build-system]
 requires = ["poetry-core"]

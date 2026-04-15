@@ -1,16 +1,15 @@
 from rest_framework.test import APITestCase
-from django.urls import reverse
+
 from professionals.models import Professional
 
 
 class ProfessionalAPITest(APITestCase):
-
     def setUp(self):
         self.professional = Professional.objects.create(
             social_name="Maria",
             occupation="Fisioterapeuta",
             address="Rua A",
-            contact="61999999999"
+            contact="61999999999",
         )
         self.list_url = "/api/professionals/"
         self.detail_url = f"/api/professionals/{self.professional.id}/"
@@ -21,55 +20,55 @@ class ProfessionalAPITest(APITestCase):
             "social_name": "João",
             "occupation": "Médico",
             "address": "Rua B",
-            "contact": "61"
+            "contact": "61",
         }
 
         response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn('contact', response.data['errors'])
-    
+        self.assertIn("contact", response.data["errors"])
+
     # VALIDAÇÃO GLOBAL
     def test_validate_errors(self):
         data = {
-            'social_name': 'maria',
-            'occupation': 'maria',
-            'address': 'Rua válida',
-            'contact': '61985641340'
+            "social_name": "maria",
+            "occupation": "maria",
+            "address": "Rua válida",
+            "contact": "61985641340",
         }
-        
+
         response = self.client.post(self.list_url, data)
-        
+
         self.assertEqual(response.status_code, 400)
-        self.assertIn('non_field_errors', response.data['errors'])
-    
+        self.assertIn("non_field_errors", response.data["errors"])
+
     # CREATE
     def test_create_professional(self):
         data = {
             "social_name": "João",
             "occupation": "Médico",
             "address": "Rua B",
-            "contact": "61988888888"
+            "contact": "61988888888",
         }
 
         response = self.client.post(self.list_url, data)
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Professional.objects.count(), 2)
-    
+
     # LIST
     def test_list_professionals(self):
         response = self.client.get(self.list_url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.data['success'])
+        self.assertTrue(response.data["success"])
 
     # DETAIL
     def test_retrieve_professional(self):
         response = self.client.get(self.detail_url)
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue(response.data['success'])
+        self.assertTrue(response.data["success"])
 
     # UPDATE
     def test_update_professional(self):
@@ -77,34 +76,30 @@ class ProfessionalAPITest(APITestCase):
             "social_name": "Maria Atualizada",
             "occupation": "Fisioterapeuta",
             "address": "Rua A",
-            "contact": "61999999999"
+            "contact": "61999999999",
         }
 
         response = self.client.put(self.detail_url, data)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['data']['social_name'], "Maria Atualizada")
+        self.assertEqual(response.data["data"]["social_name"], "Maria Atualizada")
 
     # PATCH (parcial)
     def test_partial_update_professional(self):
-        data = {
-            "social_name": "Maria Patch"
-        }
+        data = {"social_name": "Maria Patch"}
 
         response = self.client.patch(self.detail_url, data)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.data['data']['social_name'], "Maria Patch")
-        
+        self.assertEqual(response.data["data"]["social_name"], "Maria Patch")
+
     def test_partial_update_empty_address(self):
-        data = {
-            "address": ""
-        }
+        data = {"address": ""}
 
         response = self.client.patch(self.detail_url, data)
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn('address', response.data['errors'])
+        self.assertIn("address", response.data["errors"])
 
     # DELETE
     def test_delete_professional(self):
@@ -112,4 +107,4 @@ class ProfessionalAPITest(APITestCase):
 
         self.assertEqual(response.status_code, 204)
         self.assertFalse(Professional.objects.filter(id=self.professional.id).exists())
-        self.assertTrue(response.data['success'])
+        self.assertTrue(response.data["success"])

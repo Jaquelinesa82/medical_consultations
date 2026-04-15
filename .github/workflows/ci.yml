@@ -2,10 +2,12 @@ name: CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main", "feat/*"]
+  pull_request:
+    branches: ["main"]
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
 
     services:
@@ -17,13 +19,50 @@ jobs:
           POSTGRES_PASSWORD: postgres
         ports:
           - 5433:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5433/medical_db
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
       - name: Install Poetry
         run: pip install poetry
 
       - name: Install dependencies
-        run: poetry install
-      
+        run: poetry install --no-root
+
+      - name: Wait for Postgres
+        run: |
+          until pg_isready -h localhost -p 5433 -U postgres; do
+            echo "Waiting for postgres..."
+            sleep 2
+          done
+
+      - name: Run migrations
+        run: poetry run python manage.py migrate
+
+      - name: Run tests with coverage
+        run: |
+          poetry run coverage run manage.py test
+          poetry run coverage report
+
+      - name: Run Ruff (lint + fix check)
+        run: poetry run ruff check .
+
+      - name: Run Ruff Format
+        run: poetry run ruff format --check .
+
+      - name: Run pre-commit
+        run: poetry run pre-commit run --all-files
