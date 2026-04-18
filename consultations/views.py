@@ -1,4 +1,10 @@
 from rest_framework import status
+from rest_framework.permissions import (
+    SAFE_METHODS,
+    AllowAny,
+    IsAdminUser,
+    IsAuthenticated,
+)
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 
@@ -11,6 +17,16 @@ from .serializers import ConsultationSerializer
 class ConsultationViewSet(ModelViewSet):
     queryset = Consultation.objects.all()
     serializer_class = ConsultationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.request.method in SAFE_METHODS:
+            return [AllowAny()]
+
+        if self.request.method == "DELETE":
+            return [IsAdminUser()]
+
+        return [IsAuthenticated()]
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
