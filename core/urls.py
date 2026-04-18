@@ -17,6 +17,10 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 from core.views import health_check
 
@@ -25,4 +29,6 @@ urlpatterns = [
     path("health/", health_check),
     path("api/", include("professionals.urls")),
     path("api/", include("consultations.urls")),
+    path("api/token/", TokenObtainPairView.as_view()),
+    path("api/token/refresh/", TokenRefreshView.as_view()),
 ]

@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 
 from consultations.models import Consultation
@@ -6,13 +7,19 @@ from professionals.models import Professional
 
 class ConsultationAPITest(APITestCase):
     def setUp(self):
+        # Usúario para autenticação
+        self.admin = User.objects.create_user(
+            username="admin", password="123456", is_staff=True
+        )
+
+        # Profissional base
         self.professional = Professional.objects.create(
             social_name="Maria",
             occupation="Fisioterapeuta",
             address="Rua A",
             contact="61999999999",
         )
-
+        # Consulta base
         self.consultation = Consultation.objects.create(
             professional=self.professional,
             patient_name="João",
@@ -22,6 +29,8 @@ class ConsultationAPITest(APITestCase):
 
         self.list_url = "/api/consultations/"
         self.detail_url = f"/api/consultations/{self.consultation.id}/"
+        # Autentica automaticamente todas requisições deste teste
+        self.client.force_authenticate(user=self.admin)
 
     # Create
     def test_create_consultation(self):
@@ -95,3 +104,13 @@ class ConsultationAPITest(APITestCase):
 
         self.assertEqual(response.status_code, 204)
         self.assertFalse(Consultation.objects.filter(id=self.consultation.id).exists())
+
+    # DELETE BLOCKED
+    def test_delete_consultation_common_user_forbidden(self):
+        user = User.objects.create_user(username="user", password="123456")
+
+        self.client.force_authenticate(user=user)
+
+        response = self.client.delete(self.detail_url)
+
+        self.assertEqual(response.status_code, 403)

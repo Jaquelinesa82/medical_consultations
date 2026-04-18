@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from rest_framework.test import APITestCase
 
 from professionals.models import Professional
@@ -5,6 +6,10 @@ from professionals.models import Professional
 
 class ProfessionalAPITest(APITestCase):
     def setUp(self):
+        self.admin = User.objects.create_user(
+            username="admin", password="123456", is_staff=True
+        )
+
         self.professional = Professional.objects.create(
             social_name="Maria",
             occupation="Fisioterapeuta",
@@ -13,6 +18,7 @@ class ProfessionalAPITest(APITestCase):
         )
         self.list_url = "/api/professionals/"
         self.detail_url = f"/api/professionals/{self.professional.id}/"
+        self.client.force_authenticate(user=self.admin)
 
     # CREATE inválido
     def test_create_invalid_contact(self):
@@ -108,3 +114,13 @@ class ProfessionalAPITest(APITestCase):
         self.assertEqual(response.status_code, 204)
         self.assertFalse(Professional.objects.filter(id=self.professional.id).exists())
         self.assertTrue(response.data["success"])
+
+    # DELETE BLOCKED
+    def test_delete_professional_common_user_forbidden(self):
+        user = User.objects.create_user(username="user", password="123456")
+
+        self.client.force_authenticate(user=user)
+
+        response = self.client.delete(self.detail_url)
+
+        self.assertEqual(response.status_code, 403)
