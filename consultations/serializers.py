@@ -17,3 +17,7 @@ class ConsultationSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Data e horário são obrigatórios.")
 
         return data
+
+    def validate_patient_name(self, value):
+        print(value)
+        return value.strip().title()
