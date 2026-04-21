@@ -1,3 +1,5 @@
+import re
+
 from rest_framework import serializers
 
 from .models import Professional
@@ -9,9 +11,11 @@ class ProfessionalSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
     def validate_contact(self, value):
-        if len(value) < 10:
+        numbers = re.sub(r"\D", "", value)
+
+        if len(numbers) < 10:
             raise serializers.ValidationError("Contato inválido")
-        return value
+        return numbers
 
     def validate(self, data):
         social_name = data.get("social_name")
@@ -19,7 +23,7 @@ class ProfessionalSerializer(serializers.ModelSerializer):
         address = data.get("address")
 
         # valida só se vier no payload
-        if social_name is not None and not social_name.strip():
+        if social_name is not None and not social_name.strip().title():
             raise serializers.ValidationError("Nome social não pode ser vazio")
 
         if address is not None and not address.strip():
